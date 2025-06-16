@@ -4,17 +4,53 @@
 
 @layer base {
   body {
-    @apply bg-gray-900 text-white font-sans;
+    @apply bg-black text-gray-300 font-sans antialiased;
+  }
+  *::selection {
+    @apply bg-green-500/50 text-white;
   }
 }
 
-@keyframes slideUp {
-  0% {
+@layer utilities {
+  .bg-gradient-radial {
+    background-image: radial-gradient(circle, var(--tw-gradient-stops));
+  }
+  .animate-pulse-slow {
+    animation: pulse-slow 10s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  .animate-fadeIn {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
     transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Renamed from slideUp to slideUpItem for clarity */
+@keyframes slideUpItem {
+  0% {
+    transform: translateY(20px) scale(0.98);
     opacity: 0;
   }
   100% {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     opacity: 1;
   }
 }
