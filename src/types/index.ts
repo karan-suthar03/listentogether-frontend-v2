@@ -4,6 +4,7 @@ export interface Song {
   artist: string;
   album: string;
   duration: string;
+  thumbnail?: string; // URL to song/album thumbnail
 }
 
 export interface QueueItem {
@@ -11,6 +12,16 @@ export interface QueueItem {
   title: string;
   artist: string;
   addedBy: string;
+  thumbnail?: string; // URL to song/album thumbnail
+}
+
+export interface Member {
+  id: string;
+  name: string;
+  syncOffset: number; // milliseconds offset from current playback
+  isConnected: boolean;
+  joinedAt: Date;
+  isHost?: boolean;
 }
 
 export interface RoomData {
@@ -18,4 +29,7 @@ export interface RoomData {
   description: string;
   listeners: number;
   queue: QueueItem[];
+  roomCode?: string;
+  members?: Member[];
+  currentlyPlayingId?: number; // ID of the queue item currently playing
 }

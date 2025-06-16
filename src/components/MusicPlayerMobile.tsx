@@ -64,10 +64,9 @@ export default function MusicPlayerMobile({ currentSong }: MusicPlayerMobileProp
   if (!currentSong) return null;
 
   return (
-    <>
-      {/* Compact Player Bar */}
-      <div className="lg:hidden fixed left-0 right-0 bottom-0 z-20 flex justify-center pointer-events-none">
-        <div className="w-full max-w-lg mx-auto mb-4 px-4 sm:mb-6">
+    <>      {/* Compact Player Bar */}
+      <div className="lg:hidden fixed left-0 right-0 bottom-20 z-20 flex justify-center pointer-events-none">
+        <div className="w-full max-w-lg mx-auto mb-2 px-4">
           <div 
             className="relative rounded-xl bg-gray-900/90 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 pointer-events-auto overflow-hidden cursor-pointer hover:bg-gray-800/90 transition-all duration-300"
             onClick={() => setIsExpanded(true)}
