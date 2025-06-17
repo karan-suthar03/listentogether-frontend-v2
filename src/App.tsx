@@ -1,110 +1,186 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import SearchSection from './components/SearchSection';
-import CurrentlyPlaying from './components/CurrentlyPlaying';
-import RoomDetails from './components/RoomDetails';
-import MusicPlayerMobile from './components/MusicPlayerMobile';
-import BottomNavigation, { type MobileTab } from './components/BottomNavigation';
-import QueueMobile from './components/QueueMobile';
-import RoomMobile from './components/RoomMobile';
-import { mockSongs, mockRoomData } from './data/mockData';
-import type { Song, QueueItem } from './types';
+import MusicPlayer from './components/MusicPlayer';
+import Navigation, {type DesktopTab} from './components/Navigation';
+import Queue from './components/Queue';
+import Room from './components/Room';
+import type {QueueItem, RoomData, Song} from './types';
+
+type MobileTab = 'search' | 'queue' | 'room';
 
 function App() {
-  const [currentSong, setCurrentSong] = useState<Song | null>(null);
-  const [mobileTab, setMobileTab] = useState<MobileTab>('search');
-  const [queue, setQueue] = useState<QueueItem[]>(mockRoomData.queue);
-  const [currentlyPlayingId, setCurrentlyPlayingId] = useState<number | undefined>(mockRoomData.currentlyPlayingId);
-  const handleSongSelect = (song: Song) => {
-    // Convert Song to QueueItem and add to queue
-    const newQueueItem: QueueItem = {
-      id: song.id,
-      title: song.title,
-      artist: song.artist,
-      addedBy: "You", // In a real app, this would be the current user's name
-      thumbnail: song.thumbnail
+    const [currentSong, setCurrentSong] = useState<Song | null>(null);
+    const [mobileTab, setMobileTab] = useState<MobileTab>('search');
+    const [desktopTab, setDesktopTab] = useState<DesktopTab>('search');
+    const [queue, setQueue] = useState<QueueItem[]>([]);
+    const [currentlyPlayingId, setCurrentlyPlayingId] = useState<number | undefined>(undefined);
+    const [roomData, setRoomData] = useState<RoomData>({
+        name: "My Room",
+        description: "Default room",
+        listeners: 1,
+        queue: [],
+        roomCode: "ROOM123",
+        members: [],
+        currentlyPlayingId: undefined
+    });
+
+    // Sync roomData queue with the main queue state
+    useEffect(() => {
+        setRoomData(prevRoomData => ({
+            ...prevRoomData,
+            queue: queue,
+            currentlyPlayingId: currentlyPlayingId
+        }));
+    }, [queue, currentlyPlayingId]);
+
+    const handleSongSelect = (song: Song) => {
+        const newQueueItem: QueueItem = {
+            id: song.id,
+            title: song.title,
+            artist: song.artist,
+            addedBy: "You",
+            thumbnail: song.thumbnail
+        };
+
+        setQueue(prevQueue => [...prevQueue, newQueueItem]);
+
+        setMobileTab('queue');
     };
-    
-    setQueue(prevQueue => [...prevQueue, newQueueItem]);
-    
-    // Switch to queue tab to show the added song
-    setMobileTab('queue');
-  };
+    const handleRemoveFromQueue = (id: number | string) => {
+        const numericId = typeof id === 'string' ? parseInt(id) : id;
+        setQueue(prevQueue => prevQueue.filter(item => item.id !== numericId));
 
-  const handleRemoveFromQueue = (id: number) => {
-    setQueue(prevQueue => prevQueue.filter(item => item.id !== id));
-    
-    // If the removed song was currently playing, clear the currently playing
-    if (currentlyPlayingId === id) {
-      setCurrentlyPlayingId(undefined);
-    }
-  };
-
-  const handlePlayNext = (item: QueueItem) => {
-    setCurrentlyPlayingId(item.id);
-    
-    // Convert QueueItem back to Song for the currently playing component
-    const song: Song = {
-      id: item.id,
-      title: item.title,
-      artist: item.artist,
-      album: 'Unknown Album', // QueueItem doesn't have album info
-      duration: '3:30', // Default duration since QueueItem doesn't have it
-      thumbnail: item.thumbnail
+        if (currentlyPlayingId === numericId) {
+            setCurrentlyPlayingId(undefined);
+        }
     };
-    setCurrentSong(song);
-  };
 
-  const handleTabChange = (tab: MobileTab) => {
-    setMobileTab(tab);
-  };
+    const handlePlayNext = (item: QueueItem) => {
+        const numericId = typeof item.id === 'string' ? parseInt(item.id) : item.id;
+        setCurrentlyPlayingId(numericId);
 
-  const renderMobileContent = () => {
-    switch (mobileTab) {
-      case 'search':
-        return <SearchSection onSongSelect={handleSongSelect} mockSongs={mockSongs} />;
-      case 'queue':        return (
-          <QueueMobile 
-            queue={queue}
-            currentlyPlayingId={currentlyPlayingId}
-            onAddToQueue={() => setMobileTab('search')}
-            onRemoveFromQueue={handleRemoveFromQueue}
-            onPlayNext={handlePlayNext}
-          />
-        );
-      case 'room':        return (          <RoomMobile 
-            roomData={mockRoomData}
-            onExit={() => console.log('Exit room')}
-          />
-        );
-      default:
-        return <SearchSection onSongSelect={handleSongSelect} mockSongs={mockSongs} />;
-    }
-  };
-  return (    <div className="min-h-screen bg-black text-gray-300 relative overflow-hidden">
-      {/* Subtle background glow */}
-      <div className="absolute inset-0 opacity-20 bg-gradient-radial from-gray-900 via-black to-black animate-pulse-slow pointer-events-none"></div>
-      
-      {/* Desktop: Three-section layout */}
-      <div className="hidden lg:flex h-screen">
-        <SearchSection onSongSelect={handleSongSelect} mockSongs={mockSongs} />
-        <CurrentlyPlaying currentSong={currentSong} />
-        <RoomDetails roomData={mockRoomData} />
-      </div>      {/* Mobile: Single section with tabs */}
-      <div className="lg:hidden h-screen">
-        {renderMobileContent()}
-      </div>
-      
-      {/* Mobile Music Player */}
-      <MusicPlayerMobile currentSong={currentSong} />
-      
-      {/* Mobile Bottom Navigation */}
-      <BottomNavigation 
-        activeTab={mobileTab}
-        onTabChange={handleTabChange}
-        queueCount={mockRoomData.queue.length}
-      />
-    </div>
-  );
+        const song: Song = {
+            id: numericId,
+            title: item.title,
+            artist: item.artist,
+            album: 'Unknown Album',
+            duration: '3:30',
+            thumbnail: item.thumbnail
+        };
+        setCurrentSong(song);
+    };
+
+    const handleDesktopTabChange = (tab: DesktopTab | MobileTab) => {
+        if (tab === 'search' || tab === 'room') {
+            setDesktopTab(tab);
+        }
+    };
+
+    const renderDesktopContent = () => {
+        switch (desktopTab) {
+            case 'search':
+                return (
+                    <>
+                        <SearchSection onSongSelect={handleSongSelect} hasCurrentSong={!!currentSong}/>
+                        <Queue
+                            queue={queue}
+                            currentlyPlayingId={currentlyPlayingId}
+                            onAddToQueue={() => {
+                            }}
+                            onRemoveFromQueue={handleRemoveFromQueue}
+                            onPlayNext={handlePlayNext}
+                            isMobile={false}
+                        />
+                    </>
+                );
+            case 'room':
+                return (
+                    <>
+                        <Queue
+                            queue={queue}
+                            currentlyPlayingId={currentlyPlayingId}
+                            onAddToQueue={() => {
+                            }}
+                            onRemoveFromQueue={handleRemoveFromQueue}
+                            onPlayNext={handlePlayNext}
+                            isMobile={false}
+                        />
+                        <Room roomData={roomData} onExit={() => console.log('Exit room')} isMobile={false}
+                              hasCurrentSong={!!currentSong}/>
+                    </>
+                );
+            default:
+                return null;
+        }
+    };
+    const renderMobileContent = () => {
+        switch (mobileTab) {
+            case 'search':
+                return <SearchSection onSongSelect={handleSongSelect} hasCurrentSong={!!currentSong}/>;
+            case 'queue':
+                return (
+                    <Queue
+                        queue={queue}
+                        currentlyPlayingId={currentlyPlayingId}
+                        onAddToQueue={() => setMobileTab('search')}
+                        onRemoveFromQueue={handleRemoveFromQueue}
+                        onPlayNext={handlePlayNext}
+                        isMobile={true}
+                    />
+                );
+            case 'room':
+                return (
+                    <Room
+                        roomData={roomData}
+                        onExit={() => console.log('Exit room')}
+                        isMobile={true}
+                        hasCurrentSong={!!currentSong}
+                    />
+                );
+            default:
+                return <SearchSection onSongSelect={handleSongSelect} hasCurrentSong={!!currentSong}/>;
+        }
+    };
+    return (<div className="min-h-screen bg-black text-gray-300 relative overflow-hidden">
+            <div
+                className="absolute inset-0 opacity-20 bg-gradient-radial from-gray-900 via-black to-black animate-pulse-slow pointer-events-none"></div>
+            <Navigation
+                activeTab={mobileTab}
+                onTabChange={(tab) => setMobileTab(tab as MobileTab)}
+                isMobile={true}
+                queueCount={queue.length}
+            />
+
+            <Navigation
+                activeTab={desktopTab}
+                onTabChange={handleDesktopTabChange}
+                isMobile={false}
+            />
+
+            <div className="hidden lg:flex xl:hidden h-screen">
+                {renderDesktopContent()}
+            </div>
+
+            <div className="hidden xl:flex h-screen">
+                <SearchSection onSongSelect={handleSongSelect} hasCurrentSong={!!currentSong}/>
+                <Queue
+                    queue={queue}
+                    currentlyPlayingId={currentlyPlayingId}
+                    onAddToQueue={() => {
+                    }}
+                    onRemoveFromQueue={handleRemoveFromQueue}
+                    onPlayNext={handlePlayNext}
+                    isMobile={false}
+                />
+                <Room roomData={roomData} onExit={() => console.log('Exit room')} isMobile={false}
+                      hasCurrentSong={!!currentSong}/>
+            </div>
+            <div className="lg:hidden h-screen">
+                {renderMobileContent()}
+            </div>
+            <MusicPlayer currentSong={currentSong}/>
+        </div>
+    );
 }
 
 export default App;

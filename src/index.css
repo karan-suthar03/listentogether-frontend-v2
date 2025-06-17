@@ -3,61 +3,99 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-black text-gray-300 font-sans antialiased;
-  }
-  *::selection {
-    @apply bg-green-500/50 text-white;
-  }
+    body {
+        @apply bg-black text-gray-300 font-sans antialiased;
+    }
+
+    *::selection {
+        @apply bg-green-500/50 text-white;
+    }
 }
 
 @layer utilities {
-  .bg-gradient-radial {
-    background-image: radial-gradient(circle, var(--tw-gradient-stops));
-  }
-  .animate-pulse-slow {
-    animation: pulse-slow 10s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  .animate-fadeIn {
-    animation: fadeIn 0.5s ease-out forwards;
-  }
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+    .bg-gradient-radial {
+        background-image: radial-gradient(circle, var(--tw-gradient-stops));
+    }
+
+    .animate-pulse-slow {
+        animation: pulse-slow 10s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    .scrollbar-custom {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(75, 85, 99, 0.5) transparent;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar-thumb {
+        background-color: rgba(75, 85, 99, 0.5);
+        border-radius: 3px;
+        border: none;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(75, 85, 99, 0.8);
+    }
+
+    @media (max-width: 1024px) {
+        .scrollbar-custom {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .scrollbar-custom::-webkit-scrollbar {
+            display: none;
+        }
+    }
 }
 
 @keyframes pulse-slow {
-  0%, 100% {
-    opacity: 0.1;
-  }
-  50% {
-    opacity: 0.25;
-  }
+    0%, 100% {
+        opacity: 0.1;
+    }
+    50% {
+        opacity: 0.25;
+    }
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* Renamed from slideUp to slideUpItem for clarity */
 @keyframes slideUpItem {
-  0% {
-    transform: translateY(20px) scale(0.98);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
+    0% {
+        transform: translateY(20px) scale(0.98);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
 }
